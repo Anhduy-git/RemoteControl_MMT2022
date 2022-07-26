@@ -1,14 +1,11 @@
-try:
-    from socket import AF_INET, socket, SOCK_STREAM
-    from threading import Thread
-    from tkinter import filedialog
-    from tkinter.filedialog import asksaveasfile
-    from PIL import ImageTk, Image
-    from PIL import Image
-except ModuleNotFoundError:
-    from subprocess import call
-    modules = ["pillow"]
-    call("pip install " + ' '.join(modules), shell=True)
+
+from socket import AF_INET, socket, SOCK_STREAM
+from threading import Thread
+from tkinter import filedialog
+from tkinter.filedialog import asksaveasfile
+from PIL import ImageTk, Image
+from PIL import Image
+
 
 
 class ClientFeatures:
@@ -205,7 +202,7 @@ class ClientFeatures:
 
     @classmethod
     def SavePicture(cls):
-        myScreenShot = open("/Resources/image.png", 'rb')
+        myScreenShot = open("Resources/image.png", 'rb')
         data = myScreenShot.read()
         fname = filedialog.asksaveasfilename(title=u'Save file', filetypes=[("PNG", ".png")])
         myScreenShot.close()

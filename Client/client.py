@@ -1,13 +1,10 @@
-try:
-    import tkinter as tk
-    from tkinter import ttk
-    import constants
-    from clientFeatures import ClientFeatures
-    from PIL import Image, ImageTk
-except ModuleNotFoundError:
-    from subprocess import call
-    modules = ["pillow"]
-    call("pip install " + ' '.join(modules), shell=True)
+
+import tkinter as tk
+from tkinter import ttk
+import constants
+from clientFeatures import ClientFeatures
+from PIL import Image, ImageTk
+
 
 
 class Client:
@@ -294,17 +291,17 @@ class ProcessRunning:
         ## create the table
         self.treeview = ttk.Treeview(
             show="headings",
-            columns=["Name Process", "ID Process", "Count Thread"])  # table
+            columns=["ID Process", "Name Process", "Count Thread"])  # table
 
         # ttk.Style().configure("Treeview.Heading", font=(None, 20))
 
-        self.treeview.column("Name Process", anchor='center', width=100)
         self.treeview.column("ID Process", anchor='center', width=100)
+        self.treeview.column("Name Process", anchor='center', width=100)
         self.treeview.column("Count Thread", anchor='center', width=100)
 
 
-        self.treeview.heading("Name Process", text="Name Process")
         self.treeview.heading("ID Process", text="ID Process")
+        self.treeview.heading("Name Process", text="Name Process")
         self.treeview.heading("Count Thread", text="Count Thread")
 
         print("test")
@@ -433,17 +430,17 @@ class AppRunning:
         ## create the table
         self.treeview = ttk.Treeview(
             show="headings",
-            columns=["Name Application", "ID Application", "Count Thread"])  # table
+            columns=["ID Application", "Name Application", "Count Thread"])  # table
 
         # ttk.Style().configure("Treeview.Heading", font=(None, 20))
 
-        self.treeview.column("Name Application", anchor='center', width=100)
         self.treeview.column("ID Application", anchor='center', width=100)
+        self.treeview.column("Name Application", anchor='center', width=100)
         self.treeview.column("Count Thread", anchor='center', width=100)
 
 
-        self.treeview.heading("Name Application", text="Name Application")
         self.treeview.heading("ID Application", text="ID Application")
+        self.treeview.heading("Name Application", text="Name Application")
         self.treeview.heading("Count Thread", text="Count Thread")
 
 

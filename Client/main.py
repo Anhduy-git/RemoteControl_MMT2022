@@ -1,11 +1,7 @@
-try:
-    import tkinter as tk
-    from client import Client
-    import constants
-except ModuleNotFoundError:
-    from subprocess import call
-    modules = ["pillow"]
-    call("pip install " + ' '.join(modules), shell=True)
+
+import tkinter as tk
+from client import Client
+import constants
 
 # Home page
 if __name__ == "__main__":

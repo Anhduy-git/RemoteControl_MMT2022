@@ -1,16 +1,11 @@
-try:
-    from threading import Thread
-    import pyautogui
-    import socket
-    import os
-    import signal
-    import pynput
-    from pynput.keyboard import Key, Listener, Controller
-except ModuleNotFoundError:
-    from subprocess import call
 
-    modules = ["pyautogui", "pynput"]
-    call("py -m pip install " + ' '.join(modules), shell=True)
+from threading import Thread
+import pyautogui
+import socket
+import os
+import signal
+import pynput
+from pynput.keyboard import Key, Listener, Controller
 
 
 #
