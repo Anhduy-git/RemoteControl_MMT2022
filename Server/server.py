@@ -1,16 +1,17 @@
 import tkinter as tk
-from threading import Thread
+import socket
 import constants
-import serverFeatures
+from serverFeatures import ServerFeatures
 
 
 class Server:
     def __init__(self, root):
         self.root = root
-        self.button = None
+        self.startServerBtn = None
+        self.txtStartServer = None
 
     def onServerStartButtonPressed(self):
-        serverFeatures.setUpServer()
+        ServerFeatures.setUpServer()
 
 
     def onCreate(self):
@@ -19,9 +20,9 @@ class Server:
         self.frame.place(relwidth=1, relheight=1)
 
         # button click menu
-        txtStartServer = tk.StringVar()
-        self.startServerBtn = tk.Button(self.frame, textvariable=txtStartServer, font=constants.mainFont, bg="#20bebe",
+        self.txtStartServer = tk.StringVar()
+        self.startServerBtn = tk.Button(self.frame, textvariable=self.txtStartServer, font=constants.mainFont, bg="#20bebe",
                                         fg="white")
         self.startServerBtn.place(x=50, y=50, relwidth=1, relheight=1, width=-100, height=-100)
         self.startServerBtn.config(command=lambda: self.onServerStartButtonPressed())
-        txtStartServer.set(constants.txtStartServer)
+        self.txtStartServer.set(constants.txtStartServer + '\nServer IP: ' + socket.gethostbyname(socket.gethostname()))

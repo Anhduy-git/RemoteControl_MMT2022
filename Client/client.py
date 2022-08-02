@@ -304,7 +304,7 @@ class ProcessRunning:
         self.treeview.heading("Name Process", text="Name Process")
         self.treeview.heading("Count Thread", text="Count Thread")
 
-        print("test")
+
 
 
 

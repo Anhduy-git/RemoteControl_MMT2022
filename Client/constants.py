@@ -35,3 +35,6 @@ bgColor = "#80c1ff"
 
 #Resource
 backImagePath = "Resources/left-arrow.png"
+
+#Server
+PORT = 5656
