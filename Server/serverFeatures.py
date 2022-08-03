@@ -271,7 +271,7 @@ class ServerFeatures:
             if not Request:
                 cls.client.close()
                 break
-            print("Request from client:")
+            print("Request from client: ", Request)
             # take a picture
             if "TakePicture" == Request:
                 cls.TakePicture()

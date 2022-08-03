@@ -1,8 +1,7 @@
 #Dimens
-WIDTH = 300
+WIDTH = 400
 HEIGHT = 200
-POPUP_WIDTH = 200
-POPUP_HEIGHT = 120
+
 #font
 mainFont = "Raleway"
 
